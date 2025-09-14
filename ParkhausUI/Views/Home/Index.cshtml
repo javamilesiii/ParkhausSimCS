@@ -83,7 +83,7 @@
             <ul>
                 @foreach (var ticket in Model.TicketMachine.ActiveTickets)
                 {
-                    <li>ID: @ticket.Id | Time: @ticket.PurchaseTime.ToString("HH:mm") | Status: @(ticket.IsPaid ? "Paid" : "Unpaid")</li>
+                    <li>ID: @ticket.Id | Parkingslot: @ticket.Spot | Time: @ticket.PurchaseTime.ToString("HH:mm") | Status: @(ticket.IsPaid ? "Paid" : "Unpaid")</li>
                 }
             </ul>
         }
