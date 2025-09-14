@@ -18,6 +18,7 @@ namespace ParkhausAPI.Data
             {
                 entity.HasKey(t => t.Id);
                 entity.Property(t => t.Id).HasMaxLength(50);
+                entity.Property(t => t.Spot).IsRequired();
                 entity.Property(t => t.PurchaseTime).IsRequired();
                 entity.Property(t => t.IsPaid).IsRequired().HasDefaultValue(false);
             });

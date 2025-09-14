@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkhausAPI", "ParkhausAPI\
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "ParkhausContainer", "ParkhausContainer.dcproj", "{154022C1-8014-4E9D-BD78-6FF46670FFA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParkhausTest", "..\ParkhausTest\ParkhausTest.csproj", "{7C7B2E80-7312-461F-A847-B52C079E203A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{154022C1-8014-4E9D-BD78-6FF46670FFA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{154022C1-8014-4E9D-BD78-6FF46670FFA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{154022C1-8014-4E9D-BD78-6FF46670FFA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C7B2E80-7312-461F-A847-B52C079E203A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C7B2E80-7312-461F-A847-B52C079E203A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C7B2E80-7312-461F-A847-B52C079E203A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C7B2E80-7312-461F-A847-B52C079E203A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,13 +3,15 @@
     public class Ticket
     {
         public string Id { get; set; }
+        public string Spot { get; set; }
         public DateTime PurchaseTime { get; set; }
-        public DateTime ExitTime { get; set; }
+        public DateTime? ExitTime { get; set; }
         public bool IsPaid { get; set; }
 
-        public Ticket()
+        public Ticket(string Spot)
         {
-            this.Id = GetHashCode().ToString();
+            this.Id = $"T{DateTime.Now:yyyyMMddHHmmss}{Random.Shared.Next(1000, 9999)}";
+            this.Spot = Spot;
             this.IsPaid = false;
             this.PurchaseTime = DateTime.UtcNow;
         }

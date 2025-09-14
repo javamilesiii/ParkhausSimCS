@@ -10,7 +10,7 @@ namespace ParkhausUI.Controllers
         private static CarParc carParc = new CarParc(5, 50, 1.5f);
 
         private static readonly HttpClient httpClient = new HttpClient();
-        private static readonly string apiUrl = "http://localhost:60002/odata/Tickets";
+        private static readonly string apiUrl = "http://ParkhausAPI/odata/Tickets";
 
         public IActionResult Index()
         {
@@ -20,7 +20,8 @@ namespace ParkhausUI.Controllers
         [HttpPost]
         public async Task<IActionResult> EnterGarage(int floorNumber, int spotNumber)
         {
-            var ticket = carParc.TicketMachine.GenerateTicket();
+            var spot = $"{floorNumber}{(spotNumber < 10 ? "0" + spotNumber : spotNumber.ToString())}";
+            var ticket = carParc.TicketMachine.GenerateTicket(spot);
 
             carParc.Floors[floorNumber - 1].spots[spotNumber - 1].occupied = true;
 
@@ -72,23 +73,60 @@ namespace ParkhausUI.Controllers
 
         private async Task SaveTicketToDatabase(Ticket ticket)
         {
-            var json = JsonSerializer.Serialize(ticket);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            if (ticket.ExitTime == default(DateTime)) ticket.ExitTime = null;
+            try
+            {
+                Console.WriteLine("Starting to save ticket...");
+                Console.WriteLine($"API URL: {apiUrl}");
 
-            var response = await httpClient.PostAsync(apiUrl, content);
-            response.EnsureSuccessStatusCode();
+                var json = JsonSerializer.Serialize(ticket);
+                Console.WriteLine($"JSON: {json}");
+
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                Console.WriteLine("Making HTTP request...");
+                var response = await httpClient.PostAsync(apiUrl, content);
+
+                Console.WriteLine($"Response Status: {response.StatusCode}");
+                var responseBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response Body: {responseBody}");
+
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("Ticket saved successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
         }
 
         private async Task UpdateTicketInDatabase(Ticket ticket)
         {
-            ticket.IsPaid = true;
-            ticket.ExitTime = DateTime.UtcNow;
+            try
+            {
+                ticket.IsPaid = true;
+                ticket.ExitTime = DateTime.UtcNow;
+                Console.WriteLine("Starting to update ticket...");
+                Console.WriteLine($"API URL: {apiUrl}");
 
-            var json = JsonSerializer.Serialize(ticket);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+                var json = JsonSerializer.Serialize(ticket);
+                Console.WriteLine($"JSON: {json}");
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await httpClient.PutAsync($"{apiUrl}('{ticket.Id}')", content);
-            response.EnsureSuccessStatusCode();
+                Console.WriteLine("Making HTTP request...");
+                var response = await httpClient.PutAsync($"{apiUrl}('{ticket.Id}')", content);
+                Console.WriteLine($"Response Status: {response.StatusCode}");
+
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("Ticket updated successfully!");
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                throw;
+            }
         }
     }
 }

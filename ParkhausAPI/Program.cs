@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var modelBuilder = new ODataConventionModelBuilder();
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 modelBuilder.EntitySet<Ticket>("Tickets");
+modelBuilder.EntityType<Ticket>().HasKey(t => t.Id);
 builder.Services.AddDbContext<ParkingContext>(options => options.UseSqlServer(connectionString));
 var edmModel = modelBuilder.GetEdmModel();
 

@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using Microsoft.EntityFrameworkCore;
 using ParkhausAPI.Data;
 using ParkhausAPI.Models;
 
-namespace ParkingSimulator.API.Controllers
+namespace ParkhausAPI.Controllers
 {
     public class TicketsController : ODataController
     {
@@ -23,7 +22,7 @@ namespace ParkingSimulator.API.Controllers
         }
 
         [EnableQuery]
-        public async Task<IActionResult> Get(string key)  // Changed from 'id' to 'key'
+        public async Task<IActionResult> Get(string key)
         {
             var ticket = await _context.Tickets.FindAsync(key);
             if (ticket == null)
@@ -44,6 +43,14 @@ namespace ParkingSimulator.API.Controllers
             {
                 ticket.Id = Guid.NewGuid().ToString();
             }
+            else
+            {
+                var existingTicket = await _context.Tickets.FindAsync(ticket.Id);
+                if (existingTicket != null)
+                {
+                    return BadRequest($"Ticket with ID {ticket.Id} already exists");
+                }
+            }
 
             if (ticket.PurchaseTime == default)
             {
@@ -53,10 +60,10 @@ namespace ParkingSimulator.API.Controllers
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
 
-            return Created(ticket);  // OData convention
+            return Created(ticket);
         }
 
-        public async Task<IActionResult> Put(string key, [FromBody] Ticket ticket)  // Changed from 'id' to 'key'
+        public async Task<IActionResult> Put(string key, [FromBody] Ticket ticket)
         {
             if (key != ticket.Id)
             {
@@ -73,10 +80,10 @@ namespace ParkingSimulator.API.Controllers
             existingTicket.IsPaid = ticket.IsPaid;
 
             await _context.SaveChangesAsync();
-            return Updated(existingTicket);  // OData convention
+            return Updated(existingTicket);
         }
 
-        public async Task<IActionResult> Delete(string key)  // Changed from 'id' to 'key'
+        public async Task<IActionResult> Delete(string key)
         {
             var ticket = await _context.Tickets.FindAsync(key);
             if (ticket == null)

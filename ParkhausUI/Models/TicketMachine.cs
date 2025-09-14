@@ -4,14 +4,14 @@
     {
         public List<Ticket> ActiveTickets = new List<Ticket>();
 
-        public Ticket GenerateTicket()
+        public Ticket GenerateTicket(string Spot)
         {
-            Ticket ticket = new Ticket();
+            Ticket ticket = new Ticket(Spot);
             ActiveTickets.Add(ticket);
             return ticket;
         }
         public void RemoveTicket(Ticket ticket) => ActiveTickets.Remove(ticket);
-        public Ticket GetTicketById(string id) => ActiveTickets.Where(ticket => ticket.Id == id).FirstOrDefault() ?? throw new TicketNotFoundException(id);
+        public Ticket GetTicketById(string id) => ActiveTickets.Where(ticket => ticket.Id == id.Trim()).FirstOrDefault() ?? throw new TicketNotFoundException(id);
         
     }
 }
