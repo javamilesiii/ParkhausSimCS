@@ -1,0 +1,116 @@
+﻿@model CarParc
+@{
+    ViewData["Title"] = "Parking Garage Simulator";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parking Garage Simulator</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status-box { border: 2px solid #333; padding: 20px; margin: 20px 0; }
+        .form-section { border: 1px solid #ccc; padding: 15px; margin: 15px 0; background-color: #f9f9f9; }
+        .message { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .message.success { background-color: #d4edda; color: #155724; }
+        .message.error { background-color: #f8d7da; color: #721c24; }
+        input, select { padding: 5px; margin: 5px; }
+        button { padding: 10px 15px; margin: 5px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .floor-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 10px 0; }
+        .floor-info { padding: 10px; background-color: #e9ecef; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Parking Garage Simulator</h1>
+
+    @if (ViewBag.Message != null)
+    {
+        <div class="message @ViewBag.MessageType">
+            @ViewBag.Message
+        </div>
+    }
+
+    <div class="status-box">
+        <h2>Current Status</h2>
+        <p><strong>Free Spaces:</strong> @Model.GetFreeSpaces()</p>
+        <p><strong>Total Spaces:</strong> @Model.GetTotalSpaces()</p>
+        <p><strong>Rate:</strong> @Model.PricePerMinute CHF/minute</p>
+        <p><strong>Active Tickets:</strong> @Model.TicketMachine.ActiveTickets.Count</p>
+
+        <h3>Floor Status</h3>
+        <div class="floor-grid">
+            @for (int i = 0; i < Model.Floors.Length; i++)
+            {
+                <div class="floor-info">
+                    <strong>Floor @(i + 1)</strong><br>
+                    Free: @Model.Floors[i].CalculateFreeSpaces()/@Model.SpacesPerFloor
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>Enter Parking Garage</h3>
+        <form method="post" action="/Home/EnterGarage">
+            <label>Floor (1-@Model.Floors.Length):</label>
+            <select name="floorNumber" required>
+                <option value="">Select Floor</option>
+                @for (int i = 1; i <= Model.Floors.Length; i++)
+                {
+                    <option value="@i">Floor @i - @Model.Floors[i - 1].CalculateFreeSpaces() free</option>
+                }
+            </select>
+            <br>
+            <label>Spot Number (1-@Model.SpacesPerFloor):</label>
+            <input type="number" name="spotNumber" min="1" max="@Model.SpacesPerFloor" required>
+            <br>
+            <button type="submit">Enter Garage</button>
+        </form>
+    </div>
+
+    <div class="form-section">
+        <h3>Pay Ticket</h3>
+        <form method="post" action="/Home/PayTicket">
+            <label>Ticket ID:</label>
+            <input type="text" name="ticketId" placeholder="Enter your ticket ID" required>
+            <button type="submit">Pay Ticket</button>
+        </form>
+
+        @if (Model.TicketMachine.ActiveTickets.Count > 0)
+        {
+            <p><strong>Active Tickets:</strong></p>
+            <ul>
+                @foreach (var ticket in Model.TicketMachine.ActiveTickets)
+                {
+                    <li>ID: @ticket.Id | Time: @ticket.PurchaseTime.ToString("HH:mm") | Status: @(ticket.IsPaid ? "Paid" : "Unpaid")</li>
+                }
+            </ul>
+        }
+    </div>
+
+    <div class="form-section">
+        <h3>Exit Parking Garage</h3>
+        <form method="post" action="/Home/ExitGarage">
+            <label>Ticket ID:</label>
+            <input type="text" name="ticketId" placeholder="Enter your ticket ID" required>
+            <br>
+            <label>Floor Number:</label>
+            <select name="floorNumber" required>
+                <option value="">Select Floor</option>
+                @for (int i = 1; i <= Model.Floors.Length; i++)
+                {
+                    <option value="@i">Floor @i</option>
+                }
+            </select>
+            <br>
+            <label>Spot Number:</label>
+            <input type="number" name="spotNumber" min="1" max="@Model.SpacesPerFloor" required>
+            <br>
+            <button type="submit">Exit Garage</button>
+        </form>
+    </div>
+
+    <p><a href="/">Refresh Status</a></p>
+</body>
+</html>
