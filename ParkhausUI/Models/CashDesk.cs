@@ -13,6 +13,17 @@
         {
             return (float)((int)Math.Floor((dateTime - ticket.PurchaseTime).TotalMinutes) * CarParc.PricePerMinute);
         }
-        public void PayTicket(string ticketId) => TicketMachine.GetTicketById(ticketId).IsPaid = true;
+        public bool PayTicket(string ticketId) 
+        {
+            var ticket = TicketMachine.GetTicketById(ticketId);
+            if (ticket == null)
+            {
+                return false;
+            }
+            else
+            {
+                 return ticket.IsPaid = true;
+            }
+        }
     }
 }

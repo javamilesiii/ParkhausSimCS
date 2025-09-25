@@ -42,9 +42,17 @@ namespace ParkhausUI.Controllers
         public async Task<IActionResult> PayTicket(string ticketId)
         {
             var ticket = carParc.TicketMachine.GetTicketById(ticketId);
+            if (ticket == null)
+            {
+                ViewBag.Message = "Ticket not found!";
+                return View("Index", carParc);
+            }
             var price = carParc.Floors[0].cashDesk.CalculateParkingPrice(ticket, DateTime.Now);
 
-            carParc.Floors[0].cashDesk.PayTicket(ticketId);
+            if (!carParc.Floors[0].cashDesk.PayTicket(ticketId))
+            {
+                ViewBag.Message = "Ticket Not Found";
+            }
 
             try
             {
@@ -62,9 +70,22 @@ namespace ParkhausUI.Controllers
         [HttpPost]
         public IActionResult ExitGarage(int floorNumber, int spotNumber, string ticketId)
         {
+            
+            var spot = $"{floorNumber}{(spotNumber < 10 ? "0" + spotNumber : spotNumber.ToString())}";
+            var ticket = carParc.TicketMachine.GetTicketById(ticketId);
+            if (ticket == null)
+            {
+                ViewBag.Message = "Ticket not found!";
+                return View("Index", carParc);
+            }
+
+            if (ticket.Spot != spot)
+            {
+                ViewBag.Message = "Wrong Parkinglot";
+                return View("Index", carParc);
+            }
             carParc.Floors[floorNumber - 1].spots[spotNumber - 1].occupied = false;
 
-            var ticket = carParc.TicketMachine.GetTicketById(ticketId);
             carParc.TicketMachine.RemoveTicket(ticket);
 
             ViewBag.Message = "Thanks for using our garage!";

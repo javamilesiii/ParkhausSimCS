@@ -11,7 +11,7 @@
             return ticket;
         }
         public void RemoveTicket(Ticket ticket) => ActiveTickets.Remove(ticket);
-        public Ticket GetTicketById(string id) => ActiveTickets.Where(ticket => ticket.Id == id.Trim()).FirstOrDefault() ?? throw new TicketNotFoundException(id);
+        public Ticket? GetTicketById(string id) => ActiveTickets.FirstOrDefault(ticket => ticket.Id == id.Trim());
         
     }
 }
