@@ -157,7 +157,7 @@
 
 //            try
 //            {
-//                Ticket ticket = carParc.TicketMachine.GetTicketById(ticketNumber);
+//                Tickets ticket = carParc.TicketMachine.GetTicketById(ticketNumber);
 
 //                Barrier exitBarrier = carParc.ExitBarrier;
 
@@ -170,7 +170,7 @@
 //                }
 //                else
 //                {
-//                    Console.WriteLine("Ticket not paid. Please pay your ticket first.");
+//                    Console.WriteLine("Tickets not paid. Please pay your ticket first.");
 //                }
 //            }
 //            catch (TicketNotFoundException)
@@ -191,7 +191,7 @@
 
 //            try
 //            {
-//                Ticket ticket = carParc.TicketMachine.GetTicketById(ticketNumber);
+//                Tickets ticket = carParc.TicketMachine.GetTicketById(ticketNumber);
 //                DateTime currentTime = DateTime.Now;
 
 //                float price = carParc.Floors[0].cashDesk.CalculateParkingPrice(ticket, currentTime);

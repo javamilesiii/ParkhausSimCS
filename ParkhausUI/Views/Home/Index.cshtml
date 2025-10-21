@@ -36,7 +36,7 @@
         <p><strong>Free Spaces:</strong> @Model.GetFreeSpaces()</p>
         <p><strong>Total Spaces:</strong> @Model.GetTotalSpaces()</p>
         <p><strong>Rate:</strong> @Model.PricePerMinute CHF/minute</p>
-        <p><strong>Active Tickets:</strong> @Model.TicketMachine.ActiveTickets.Count</p>
+        <p><strong>Active Ticketss:</strong> @Model.TicketMachine.ActiveTickets.Count</p>
 
         <h3>Floor Status</h3>
         <div class="floor-grid">
@@ -70,16 +70,16 @@
     </div>
 
     <div class="form-section">
-        <h3>Pay Ticket</h3>
+        <h3>Pay Tickets</h3>
         <form method="post" action="/Home/PayTicket">
-            <label>Ticket ID:</label>
+            <label>Tickets ID:</label>
             <input type="text" name="ticketId" placeholder="Enter your ticket ID" required>
-            <button type="submit">Pay Ticket</button>
+            <button type="submit">Pay Tickets</button>
         </form>
 
         @if (Model.TicketMachine.ActiveTickets.Count > 0)
         {
-            <p><strong>Active Tickets:</strong></p>
+            <p><strong>Active Ticketss:</strong></p>
             <ul>
                 @foreach (var ticket in Model.TicketMachine.ActiveTickets)
                 {
@@ -92,7 +92,7 @@
     <div class="form-section">
         <h3>Exit Parking Garage</h3>
         <form method="post" action="/Home/ExitGarage">
-            <label>Ticket ID:</label>
+            <label>Tickets ID:</label>
             <input type="text" name="ticketId" placeholder="Enter your ticket ID" required>
             <br>
             <label>Floor Number:</label>

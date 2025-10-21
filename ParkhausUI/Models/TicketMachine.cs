@@ -1,17 +1,25 @@
-﻿namespace ParkhausUI.Models
+﻿using ParkhausUI.Controllers;
+
+namespace ParkhausUI.Models
 {
     public class TicketMachine
     {
-        public List<Ticket> ActiveTickets = new List<Ticket>();
+        public List<Tickets> ActiveTickets = new List<Tickets>();
 
-        public Ticket GenerateTicket(string Spot)
+        /*public TicketMachine()
         {
-            Ticket ticket = new Ticket(Spot);
-            ActiveTickets.Add(ticket);
-            return ticket;
+            HomeController _controller = new HomeController();
+            ActiveTickets = _controller.GetTicketsAsync().GetAwaiter().GetResult().ToList();
+        }*/
+
+        public Tickets GenerateTicket(string Spot)
+        {
+            Tickets tickets = new Tickets(Spot);
+            ActiveTickets.Add(tickets);
+            return tickets;
         }
-        public void RemoveTicket(Ticket ticket) => ActiveTickets.Remove(ticket);
-        public Ticket? GetTicketById(string id) => ActiveTickets.FirstOrDefault(ticket => ticket.Id == id.Trim());
+        public void RemoveTicket(Tickets tickets) => ActiveTickets.Remove(tickets);
+        public Tickets? GetTicketById(string id) => ActiveTickets.FirstOrDefault(ticket => ticket.Id == id.Trim());
         
     }
 }

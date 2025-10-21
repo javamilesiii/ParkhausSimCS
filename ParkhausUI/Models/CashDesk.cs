@@ -9,9 +9,9 @@
             this.TicketMachine = ticketMachine;
             this.CarParc = carParc;
         }
-        public float CalculateParkingPrice(Ticket ticket, DateTime dateTime)
+        public float CalculateParkingPrice(Tickets tickets, DateTime dateTime)
         {
-            return (float)((int)Math.Floor((dateTime - ticket.PurchaseTime).TotalMinutes) * CarParc.PricePerMinute);
+            return (float)((int)Math.Floor((dateTime - tickets.PurchaseTime).TotalMinutes) * CarParc.PricePerMinute);
         }
         public bool PayTicket(string ticketId) 
         {

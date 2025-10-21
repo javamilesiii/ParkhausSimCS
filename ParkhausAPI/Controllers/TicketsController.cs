@@ -6,33 +6,22 @@ using ParkhausAPI.Models;
 
 namespace ParkhausAPI.Controllers
 {
-    public class TicketsController : ODataController
+    public class TicketsController(ParkingContext _context) : ODataController
     {
-        private readonly ParkingContext _context;
-
-        public TicketsController(ParkingContext context)
-        {
-            _context = context;
-        }
-
         [EnableQuery]
-        public IQueryable<Ticket> Get()
+        public IQueryable<Tickets> Get()
         {
             return _context.Tickets;
         }
 
         [EnableQuery]
-        public async Task<IActionResult> Get(string key)
+        public async Task<IActionResult> Get(string key, CancellationToken token)
         {
-            var ticket = await _context.Tickets.FindAsync(key);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-            return Ok(ticket);
+            var ticket = await _context.Tickets.FindAsync(key, token);
+            return ticket != null ? Ok(ticket): NotFound();
         }
 
-        public async Task<IActionResult> Post([FromBody] Ticket ticket)
+        public async Task<IActionResult> Post([FromBody] Tickets ticket)
         {
             if (!ModelState.IsValid)
             {
@@ -63,7 +52,23 @@ namespace ParkhausAPI.Controllers
             return Created(ticket);
         }
 
-        public async Task<IActionResult> Put(string key, [FromBody] Ticket ticket)
+        public async Task<IActionResult> Put(string key, [FromBody] Tickets ticket)
+        {
+            if (key != ticket.Id) return BadRequest("ID mismatch");
+
+            var existingTicket = await _context.Tickets.FindAsync(key);
+            if (existingTicket == null) return NotFound();
+
+            existingTicket.Spot = ticket.Spot;
+            existingTicket.PurchaseTime = ticket.PurchaseTime;
+            existingTicket.ExitTime = ticket.ExitTime;
+            existingTicket.IsPaid = ticket.IsPaid;
+
+            await _context.SaveChangesAsync();
+            return Updated(existingTicket);
+        }
+
+        public async Task<IActionResult> Patch(string key, [FromBody] Tickets ticket)
         {
             if (key != ticket.Id)
             {
@@ -71,11 +76,10 @@ namespace ParkhausAPI.Controllers
             }
 
             var existingTicket = await _context.Tickets.FindAsync(key);
-            if (existingTicket == null)
-            {
-                return NotFound();
-            }
+            if (existingTicket == null) return NotFound();
 
+            existingTicket.Spot = ticket.Spot;
+            existingTicket.PurchaseTime = ticket.PurchaseTime;
             existingTicket.ExitTime = ticket.ExitTime;
             existingTicket.IsPaid = ticket.IsPaid;
 

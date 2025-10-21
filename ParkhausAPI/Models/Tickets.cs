@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ParkhausAPI.Models
 {
-    public class Ticket
+    public class Tickets
     {
         [Key]
         public string Id { get; set; } = string.Empty;

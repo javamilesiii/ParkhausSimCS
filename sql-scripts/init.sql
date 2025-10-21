@@ -21,3 +21,4 @@ CREATE TABLE Tickets (
 );
 END
 GO
+SELECT * FROM Tickets

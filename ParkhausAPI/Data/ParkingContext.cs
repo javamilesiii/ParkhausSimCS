@@ -9,12 +9,12 @@ namespace ParkhausAPI.Data
         {
         }
 
-        public DbSet<Ticket> Tickets { get; set; }
+        public DbSet<Tickets> Tickets { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Ticket>(entity =>
+            modelBuilder.Entity<Tickets>(entity =>
             {
                 entity.HasKey(t => t.Id);
                 entity.Property(t => t.Id).HasMaxLength(50);

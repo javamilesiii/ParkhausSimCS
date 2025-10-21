@@ -27,12 +27,12 @@
 
 //        public void PrintTicket(CarParc carParc)
 //        {
-//            Ticket ticket = carParc.TicketMachine.GenerateTicket();
+//            Tickets ticket = carParc.TicketMachine.GenerateTicket();
 //            string ticketNumber = ticket.Id;
 //            string ticketTime = ticket.PurchaseTime.ToString("dd/MM/yyyy HH:mm:ss");
 
 //            Console.WriteLine("########################" +
-//                "\n#  Ticket Information  #" +
+//                "\n#  Tickets Information  #" +
 //                "\n#----------------------#" +
 //                "\n#      Nr. " + ticketNumber + "      #" +
 //                "\n# " + ticketTime + "  #" +

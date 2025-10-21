@@ -6,11 +6,10 @@ using System.Text.Json;
 namespace ParkhausUI.Controllers
 {
     public class HomeController : Controller
-    {
+    { 
+        private static readonly HttpClient httpClient = new HttpClient(); // Wiederverwenden der HttpClient-Instanz suchen
+        private static readonly string apiUrl = "http://ParkhausAPI/odata/Tickets"; // In der AppSettings.json konfigurieren
         private static CarParc carParc = new CarParc(5, 50, 1.5f);
-
-        private static readonly HttpClient httpClient = new HttpClient();
-        private static readonly string apiUrl = "http://ParkhausAPI/odata/Tickets";
 
         public IActionResult Index()
         {
@@ -20,19 +19,25 @@ namespace ParkhausUI.Controllers
         [HttpPost]
         public async Task<IActionResult> EnterGarage(int floorNumber, int spotNumber)
         {
+            await GetTicketsFromDatabase();
+
+            if (carParc.Floors[floorNumber - 1].spots[spotNumber - 1].occupied)
+            {
+                ViewBag.Message = "Parkinglot already occupied";
+                return View("Index", carParc);
+            }
+            carParc.Floors[floorNumber - 1].spots[spotNumber - 1].occupied = true;
             var spot = $"{floorNumber}{(spotNumber < 10 ? "0" + spotNumber : spotNumber.ToString())}";
             var ticket = carParc.TicketMachine.GenerateTicket(spot);
-
-            carParc.Floors[floorNumber - 1].spots[spotNumber - 1].occupied = true;
 
             try
             {
                 await SaveTicketToDatabase(ticket);
-                ViewBag.Message = "Car parked! Ticket ID: " + ticket.Id + " (Saved)";
+                ViewBag.Message = "Car parked! Tickets ID: " + ticket.Id + " (Saved)";
             }
             catch
             {
-                ViewBag.Message = "Car parked! Ticket ID: " + ticket.Id + " (Local only)";
+                ViewBag.Message = "Car parked! Tickets ID: " + ticket.Id + " (Local only)";
             }
 
             return View("Index", carParc);
@@ -44,19 +49,19 @@ namespace ParkhausUI.Controllers
             var ticket = carParc.TicketMachine.GetTicketById(ticketId);
             if (ticket == null)
             {
-                ViewBag.Message = "Ticket not found!";
+                ViewBag.Message = "Tickets not found!";
                 return View("Index", carParc);
             }
             var price = carParc.Floors[0].cashDesk.CalculateParkingPrice(ticket, DateTime.Now);
 
             if (!carParc.Floors[0].cashDesk.PayTicket(ticketId))
             {
-                ViewBag.Message = "Ticket Not Found";
+                ViewBag.Message = "Tickets Not Found";
             }
 
             try
             {
-                await UpdateTicketInDatabase(ticket);
+                await UpdateTicketInDatabase(ticket, "pay");
                 ViewBag.Message = "Payment successful! Price: " + price + " CHF (Updated)";
             }
             catch
@@ -68,14 +73,13 @@ namespace ParkhausUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult ExitGarage(int floorNumber, int spotNumber, string ticketId)
+        public async Task<IActionResult> ExitGarage(int floorNumber, int spotNumber, string ticketId)
         {
-            
             var spot = $"{floorNumber}{(spotNumber < 10 ? "0" + spotNumber : spotNumber.ToString())}";
             var ticket = carParc.TicketMachine.GetTicketById(ticketId);
             if (ticket == null)
             {
-                ViewBag.Message = "Ticket not found!";
+                ViewBag.Message = "Tickets not found!";
                 return View("Index", carParc);
             }
 
@@ -88,19 +92,28 @@ namespace ParkhausUI.Controllers
 
             carParc.TicketMachine.RemoveTicket(ticket);
 
-            ViewBag.Message = "Thanks for using our garage!";
+            try
+            {
+                await UpdateTicketInDatabase(ticket, "exit");
+                ViewBag.Message = "Thanks for using our garage!";
+            }
+            catch
+            {
+                ViewBag.Message = "Thanks for using our garage! (Local only)";
+            }
+            
             return View("Index", carParc);
         }
 
-        private async Task SaveTicketToDatabase(Ticket ticket)
+        private async Task SaveTicketToDatabase(Tickets tickets)
         {
-            if (ticket.ExitTime == default(DateTime)) ticket.ExitTime = null;
+            if (tickets.ExitTime == default(DateTime)) tickets.ExitTime = null;
             try
             {
-                Console.WriteLine("Starting to save ticket...");
+                Console.WriteLine("Starting to save tickets...");
                 Console.WriteLine($"API URL: {apiUrl}");
 
-                var json = JsonSerializer.Serialize(ticket);
+                var json = JsonSerializer.Serialize(tickets);
                 Console.WriteLine($"JSON: {json}");
 
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -113,7 +126,7 @@ namespace ParkhausUI.Controllers
                 Console.WriteLine($"Response Body: {responseBody}");
 
                 response.EnsureSuccessStatusCode();
-                Console.WriteLine("Ticket saved successfully!");
+                Console.WriteLine("Tickets saved successfully!");
             }
             catch (Exception ex)
             {
@@ -122,32 +135,56 @@ namespace ParkhausUI.Controllers
             }
         }
 
-        private async Task UpdateTicketInDatabase(Ticket ticket)
+        private async Task UpdateTicketInDatabase(Tickets tickets, String type)
         {
             try
             {
-                ticket.IsPaid = true;
-                ticket.ExitTime = DateTime.UtcNow;
-                Console.WriteLine("Starting to update ticket...");
+                if (type == "pay") tickets.IsPaid = true;
+                else if (type == "exit") tickets.ExitTime = DateTime.UtcNow;
+                Console.WriteLine("Starting to update tickets...");
                 Console.WriteLine($"API URL: {apiUrl}");
 
-                var json = JsonSerializer.Serialize(ticket);
+                var json = JsonSerializer.Serialize(tickets);
                 Console.WriteLine($"JSON: {json}");
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
                 Console.WriteLine("Making HTTP request...");
-                var response = await httpClient.PutAsync($"{apiUrl}('{ticket.Id}')", content);
+                var response = await httpClient.PutAsync($"{apiUrl}('{tickets.Id}')", content);
                 Console.WriteLine($"Response Status: {response.StatusCode}");
 
                 response.EnsureSuccessStatusCode();
-                Console.WriteLine("Ticket updated successfully!");
-                response.EnsureSuccessStatusCode();
+                Console.WriteLine("Tickets updated successfully!");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
                 throw;
             }
+        }
+
+        private async Task<Tickets[]> GetTicketsFromDatabase()
+        {
+            try
+            {
+                var response = await httpClient.GetAsync(apiUrl);
+                Console.WriteLine($"GetTicketsFromDatabase Response Status: {response.StatusCode}");
+                var body = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"GetTicketsFromDatabase response body: {body}");
+
+                var tickets = JsonSerializer.Deserialize<Tickets>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+                return tickets != null ? new[] { tickets } : Array.Empty<Tickets>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"GetTicketsFromDatabase error: {ex.Message}");
+                return Array.Empty<Tickets>();
+            }
+        }
+
+        public async Task<Tickets[]> GetTicketsAsync()
+        {
+            return await GetTicketsFromDatabase();
         }
     }
 }
