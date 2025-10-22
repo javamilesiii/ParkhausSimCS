@@ -36,7 +36,7 @@
         <p><strong>Free Spaces:</strong> @Model.GetFreeSpaces()</p>
         <p><strong>Total Spaces:</strong> @Model.GetTotalSpaces()</p>
         <p><strong>Rate:</strong> @Model.PricePerMinute CHF/minute</p>
-        <p><strong>Active Ticketss:</strong> @Model.TicketMachine.ActiveTickets.Count</p>
+        <p><strong>Active Tickets:</strong> @Model.TicketMachine.ActiveTickets.Count</p>
 
         <h3>Floor Status</h3>
         <div class="floor-grid">
@@ -79,7 +79,7 @@
 
         @if (Model.TicketMachine.ActiveTickets.Count > 0)
         {
-            <p><strong>Active Ticketss:</strong></p>
+            <p><strong>Active Tickets:</strong></p>
             <ul>
                 @foreach (var ticket in Model.TicketMachine.ActiveTickets)
                 {

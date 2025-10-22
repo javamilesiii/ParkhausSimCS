@@ -105,7 +105,7 @@ namespace ParkhausUI.Controllers
             return View("Index", carParc);
         }
 
-        private async Task SaveTicketToDatabase(Tickets tickets)
+        private static async Task SaveTicketToDatabase(Tickets tickets)
         {
             if (tickets.ExitTime == default(DateTime)) tickets.ExitTime = null;
             try
@@ -135,7 +135,7 @@ namespace ParkhausUI.Controllers
             }
         }
 
-        private async Task UpdateTicketInDatabase(Tickets tickets, String type)
+        private static async Task UpdateTicketInDatabase(Tickets tickets, String type)
         {
             try
             {
@@ -162,7 +162,7 @@ namespace ParkhausUI.Controllers
             }
         }
 
-        private async Task<Tickets[]> GetTicketsFromDatabase()
+        private static async Task<Tickets[]> GetTicketsFromDatabase()
         {
             try
             {
@@ -178,7 +178,7 @@ namespace ParkhausUI.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"GetTicketsFromDatabase error: {ex.Message}");
-                return Array.Empty<Tickets>();
+                return [];
             }
         }
 

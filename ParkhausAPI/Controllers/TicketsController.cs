@@ -15,7 +15,7 @@ namespace ParkhausAPI.Controllers
         }
 
         [EnableQuery]
-        public async Task<IActionResult> Get(string key, CancellationToken token)
+        public async Task<IActionResult> Get(string key, ParkingContext _context, CancellationToken token)
         {
             var ticket = await _context.Tickets.FindAsync(key, token);
             return ticket != null ? Ok(ticket): NotFound();
@@ -23,28 +23,16 @@ namespace ParkhausAPI.Controllers
 
         public async Task<IActionResult> Post([FromBody] Tickets ticket)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (string.IsNullOrEmpty(ticket.Id))
-            {
-                ticket.Id = Guid.NewGuid().ToString();
-            }
+            if (string.IsNullOrEmpty(ticket.Id)) ticket.Id = Guid.NewGuid().ToString();
             else
             {
                 var existingTicket = await _context.Tickets.FindAsync(ticket.Id);
-                if (existingTicket != null)
-                {
-                    return BadRequest($"Ticket with ID {ticket.Id} already exists");
-                }
+                if (existingTicket != null) return BadRequest($"Ticket with ID {ticket.Id} already exists");
             }
 
-            if (ticket.PurchaseTime == default)
-            {
-                ticket.PurchaseTime = DateTime.Now;
-            }
+            if (ticket.PurchaseTime == default) ticket.PurchaseTime = DateTime.Now;
 
             _context.Tickets.Add(ticket);
             await _context.SaveChangesAsync();
@@ -70,10 +58,7 @@ namespace ParkhausAPI.Controllers
 
         public async Task<IActionResult> Patch(string key, [FromBody] Tickets ticket)
         {
-            if (key != ticket.Id)
-            {
-                return BadRequest("ID mismatch");
-            }
+            if (key != ticket.Id) return BadRequest("ID mismatch");
 
             var existingTicket = await _context.Tickets.FindAsync(key);
             if (existingTicket == null) return NotFound();
@@ -90,10 +75,7 @@ namespace ParkhausAPI.Controllers
         public async Task<IActionResult> Delete(string key)
         {
             var ticket = await _context.Tickets.FindAsync(key);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
+            if (ticket == null) return NotFound();
 
             _context.Tickets.Remove(ticket);
             await _context.SaveChangesAsync();

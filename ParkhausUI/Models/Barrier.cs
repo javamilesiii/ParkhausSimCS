@@ -1,15 +1,9 @@
 ﻿namespace ParkhausUI.Models
 {
-    public class Barrier
+    public class Barrier(string name)
     {
-        public string Name { get; set; }
-        public bool IsOpen { get; private set; }
-
-        public Barrier(string name)
-        {
-            this.Name = name;
-            this.IsOpen = false;
-        }
+        public string Name { get; set; } = name;
+        public bool IsOpen { get; private set; } = false;
 
         public async Task PassThroughBarrierAsync()
         {

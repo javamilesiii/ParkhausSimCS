@@ -4,7 +4,7 @@ namespace ParkhausUI.Models
 {
     public class TicketMachine
     {
-        public List<Tickets> ActiveTickets = new List<Tickets>();
+        public List<Tickets> ActiveTickets = [];
 
         /*public TicketMachine()
         {
